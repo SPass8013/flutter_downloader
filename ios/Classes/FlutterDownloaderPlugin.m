@@ -298,6 +298,9 @@ static BOOL debug = YES;
         NSLog(@"savedDir: %@", savedDir);
         NSLog(@"filename: %@", filename);
     }
+    if (savedDir.length <= 0) {
+        return nil;
+    }
     NSURL *savedDirURL = [NSURL fileURLWithPath:savedDir];
     return [savedDirURL URLByAppendingPathComponent:filename];
 }
@@ -837,7 +840,7 @@ static BOOL debug = YES;
     if (debug) {
         NSLog(@"applicationWillTerminate:");
     }
-    for (NSString* key in _runningTaskById) {
+    for (NSString* key in _runningTaskById.allKeys) {
         if ([_runningTaskById[key][KEY_STATUS] intValue] < STATUS_COMPLETE) {
             [self updateTask:key status:STATUS_CANCELED progress:-1];
         }
@@ -884,6 +887,10 @@ static BOOL debug = YES;
 
     if ([fileManager fileExistsAtPath:[destinationURL path]]) {
         [fileManager removeItemAtURL:destinationURL error:nil];
+    }
+    
+    if (!destinationURL) {
+        return;
     }
 
     BOOL success = [fileManager copyItemAtURL:location
